@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}AttritionIQ — EDA{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div>
+    <p class="page-label">Deep Dive Analytics</p>
+    <h1 class="page-title">Exploratory Data Analysis</h1>
+  </div>
+  <div class="header-tag">1,470 Records</div>
+</header>
+
+<section class="eda-section">
+  <h3>📈 Feature Correlation with Attrition</h3>
+  <div class="correlation-bars">
+    <div class="corr-row"><span class="corr-label">OverTime</span><div class="corr-bar-wrap"><div class="corr-bar corr-high" style="width:82%">0.246</div></div></div>
+    <div class="corr-row"><span class="corr-label">Job Involvement</span><div class="corr-bar-wrap"><div class="corr-bar corr-high" style="width:68%">0.204</div></div></div>
+    <div class="corr-row"><span class="corr-label">Monthly Income</span><div class="corr-bar-wrap"><div class="corr-bar corr-med" style="width:57%">0.171</div></div></div>
+    <div class="corr-row"><span class="corr-label">Job Satisfaction</span><div class="corr-bar-wrap"><div class="corr-bar corr-med" style="width:52%">0.156</div></div></div>
+    <div class="corr-row"><span class="corr-label">Work-Life Balance</span><div class="corr-bar-wrap"><div class="corr-bar corr-med" style="width:47%">0.141</div></div></div>
+  </div>
+</section>
+
+<section class="model-section">
+  <h3>📊 Model Performance Comparison</h3>
+  <div class="model-table">
+    <div class="model-row model-header"><span>Model</span><span>Accuracy</span><span>ROC-AUC</span></div>
+    <div class="model-row"><span>Logistic Regression</span><span>83.2%</span><span>0.798</span></div>
+    <div class="model-row"><span>Random Forest</span><span>85.7%</span><span>0.842</span></div>
+    <div class="model-row model-best"><span>XGBoost ★ Best</span><span>87.4%</span><span>0.912</span></div>
+  </div>
+</section>
+{% endblock %}

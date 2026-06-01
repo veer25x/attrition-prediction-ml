@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}AttritionIQ — Predict Risk{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div>
+    <p class="page-label">ML Predictor</p>
+    <h1 class="page-title">Employee Attrition Risk</h1>
+  </div>
+  <div class="header-tag">Model Accuracy: 87.4%</div>
+</header>
+
+<div class="predict-layout">
+  <div class="predict-form-card">
+    <h3>Employee Profile</h3>
+    
+    <div class="form-group-label">Personal Details</div>
+    <div class="form-grid">
+      <div class="form-field"><label>Age</label><input type="number" id="Age" value="32"></div>
+      <div class="form-field"><label>Total Working Years</label><input type="number" id="TotalWorkingYears" value="10"></div>
+      <div class="form-field"><label>Num Companies Worked</label><input type="number" id="NumCompaniesWorked" value="2"></div>
+      <div class="form-field"><label>Distance from Home (km)</label><input type="number" id="DistanceFromHome" value="7"></div>
+    </div>
+
+    <div class="form-group-label">Job Details</div>
+    <div class="form-grid">
+      <div class="form-field"><label>Monthly Income ($)</label><input type="number" id="MonthlyIncome" value="6500"></div>
+      <div class="form-field"><label>Job Level (1-5)</label><input type="number" id="JobLevel" value="2"></div>
+      <div class="form-field"><label>Years at Company</label><input type="number" id="YearsAtCompany" value="4"></div>
+      <div class="form-field"><label>Years Since Last Promotion</label><input type="number" id="YearsSinceLastPromotion" value="2"></div>
+    </div>
+
+    <div class="form-group-label">Satisfaction</div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Job Satisfaction (1-4)</label>
+        <select id="JobSatisfaction">
+          <option value="1">1 - Very Low</option>
+          <option value="2">2 - Low</option>
+          <option value="3" selected>3 - High</option>
+          <option value="4">4 - Very High</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Work-Life Balance (1-4)</label>
+        <select id="WorkLifeBalance">
+          <option value="1">1 - Poor</option>
+          <option value="2">2 - Fair</option>
+          <option value="3" selected>3 - Good</option>
+          <option value="4">4 - Excellent</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Environment Satisfaction (1-4)</label>
+        <select id="EnvironmentSatisfaction">
+          <option value="1">1 - Very Low</option>
+          <option value="2">2 - Low</option>
+          <option value="3" selected>3 - High</option>
+          <option value="4">4 - Very High</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Overtime</label>
+        <select id="OverTime">
+          <option value="No">No</option>
+          <option value="Yes" selected>Yes</option>
+        </select>
+      </div>
+      <div class="form-field"><label>Stock Option Level (0-3)</label><input type="number" id="StockOptionLevel" value="1"></div>
+    </div>
+
+    <div class="form-field">
+      <label>Job Involvement (1-4)</label>
+      <select id="JobInvolvement">
+        <option value="1">1 - Low</option>
+        <option value="2">2 - Medium</option>
+        <option value="3" selected>3 - High</option>
+        <option value="4">4 - Very High</option>
+      </select>
+    </div>
+
+    <button class="btn-predict" id="predictBtn">Analyse Risk →</button>
+  </div>
+
+  <div class="result-panel" id="resultPanel">
+    <div class="result-placeholder" id="placeholder">
+      <div class="placeholder-icon">🧠</div>
+      <p>Click <strong>Analyse Risk</strong> to get prediction</p>
+    </div>
+
+    <div class="result-content" id="resultContent" style="display:none">
+      <div class="risk-badge-wrap">
+        <span class="risk-badge" id="riskBadge">—</span>
+      </div>
+      <div class="factors-title">🔍 Contributing Factors</div>
+      <div id="factorsList" class="factors-list"></div>
+      <button class="btn-secondary" id="resetBtn" style="margin-top:1rem">Reset</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function getFormData() {
+  return {
+    Age: parseInt(document.getElementById('Age').value) || 30,
+    DailyRate: 800,
+    DistanceFromHome: parseInt(document.getElementById('DistanceFromHome').value) || 5,
+    Education: 3,
+    EnvironmentSatisfaction: parseInt(document.getElementById('EnvironmentSatisfaction').value) || 3,
+    HourlyRate: 65,
+    JobInvolvement: parseInt(document.getElementById('JobInvolvement').value) || 3,
+    JobLevel: parseInt(document.getElementById('JobLevel').value) || 2,
+    JobSatisfaction: parseInt(document.getElementById('JobSatisfaction').value) || 3,
+    MonthlyIncome: parseInt(document.getElementById('MonthlyIncome').value) || 6000,
+    MonthlyRate: 14000,
+    NumCompaniesWorked: parseInt(document.getElementById('NumCompaniesWorked').value) || 2,
+    OverTime: document.getElementById('OverTime').value,
+    PercentSalaryHike: 13,
+    PerformanceRating: 3,
+    RelationshipSatisfaction: 3,
+    StockOptionLevel: parseInt(document.getElementById('StockOptionLevel').value) || 1,
+    TotalWorkingYears: parseInt(document.getElementById('TotalWorkingYears').value) || 10,
+    TrainingTimesLastYear: 3,
+    WorkLifeBalance: parseInt(document.getElementById('WorkLifeBalance').value) || 3,
+    YearsAtCompany: parseInt(document.getElementById('YearsAtCompany').value) || 5,
+    YearsInCurrentRole: 3,
+    YearsSinceLastPromotion: parseInt(document.getElementById('YearsSinceLastPromotion').value) || 1,
+    YearsWithCurrManager: 3
+  };
+}
+
+async function runPrediction() {
+  try {
+    const res = await fetch('/api/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(getFormData())
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    
+    document.getElementById('placeholder').style.display = 'none';
+    document.getElementById('resultContent').style.display = 'block';
+    
+    const badge = document.getElementById('riskBadge');
+    badge.textContent = data.risk_label;
+    badge.className = 'risk-badge risk-' + data.risk_level;
+    
+    const fl = document.getElementById('factorsList');
+    fl.innerHTML = data.factors.map(f => `
+      <div class="factor-item">
+        <div class="factor-top">
+          <span class="factor-name">${f.factor}</span>
+          <span class="factor-impact impact-${f.impact.toLowerCase()}">${f.impact}</span>
+        </div>
+        <div class="factor-detail">${f.detail}</div>
+      </div>
+    `).join('');
+  } catch(e) {
+    alert('Prediction failed: ' + e.message);
+  }
+}
+
+function clearResult() {
+  document.getElementById('placeholder').style.display = 'flex';
+  document.getElementById('resultContent').style.display = 'none';
+}
+
+document.getElementById('predictBtn').addEventListener('click', runPrediction);
+document.getElementById('resetBtn').addEventListener('click', clearResult);
+</script>
+{% endblock %}
